@@ -7,9 +7,6 @@
     <Filter Include="src">
       <UniqueIdentifier>{31ae7996-ef26-40e4-b961-7bfd756ae852}</UniqueIdentifier>
     </Filter>
-    <Filter Include="platform">
-      <UniqueIdentifier>{80d29707-26e3-4acf-a8d2-6f881faa1cc0}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\yason.h">
@@ -28,6 +25,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\json_render.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cfg_parser.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

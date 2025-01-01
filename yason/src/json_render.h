@@ -11,7 +11,7 @@ extern "C" {
 
     #define INDENT_STEP 2
 
-	static void json_render_object(Element* obj, String* content, int indent);
+	static void json_render_object(Element* obj, String* content, int indent, int is_root);
 
 
 	void json_indent(String* content, const int indent, const int append_line)

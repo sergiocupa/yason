@@ -31,10 +31,11 @@ extern "C" {
 	typedef enum _TreeTypeOption
 	{
 		TREE_TYPE_UNKNOWN = 0,
-		TREE_TYPE_JSON    = 1,
-		TREE_TYPE_YAML    = 2,
-		TREE_TYPE_XML     = 3,
-		TREE_TYPE_HTML    = 4
+		TREE_TYPE_CFG     = 1,
+		TREE_TYPE_JSON    = 2,
+		TREE_TYPE_YAML    = 3,
+		TREE_TYPE_XML     = 4,
+		TREE_TYPE_HTML    = 5
 	}
 	TreeTypeOption;
 

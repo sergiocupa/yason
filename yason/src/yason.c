@@ -1,10 +1,12 @@
 #include "../include/yason.h"
 #include "json_parser.h"
 #include "yaml_parser.h"
+#include "cfg_parser.h"
 #include "yaml_render.h"
 #include "json_render.h"
-#include "../../filelib/include/filelib.h"
-#include "../../stringlib/include/stringlib.h"
+#include "../../../filelib/include/filelib.h"
+#include "../../../numericlib/include/numeric.h"
+#include "../../../stringlib/include/stringlib.h"
 #include <stdlib.h>
 
 
@@ -66,6 +68,11 @@ static TreeTypeOption yason_get_tree_type(const char* file_name)
 			free(upper);
 			return TREE_TYPE_YAML;
 		}
+		else if (string_equals_char_range(upper, "CFG", stop + 1, -1))
+		{
+			free(upper);
+			return TREE_TYPE_CFG;
+		}
 		free(upper);
 	}
 	return TREE_TYPE_UNKNOWN;
@@ -80,7 +87,11 @@ String* yason_render(Element* root, int indent)
 	}
 	else if (root->TreeType == TREE_TYPE_YAML)
 	{
-		return yaml_render(root, indent);
+		return yaml_render(root);
+	}
+	else if (root->TreeType == TREE_TYPE_CFG)
+	{
+		return cfg_render(root);
 	}
 	return 0;
 }
@@ -99,10 +110,10 @@ Element* yason_parse(const char* content, int length, TreeTypeOption type)
 	{
 	case TREE_TYPE_JSON:
 		return json_parse(content, length);
-		break;
 	case TREE_TYPE_YAML:
 		return yaml_parse(content, length);
-		break;
+	case TREE_TYPE_CFG:
+		return cfg_parse(content, length);
 	}
 	return 0;
 }
@@ -124,4 +135,107 @@ Element* yason_parse_file(const char* path_file)
 	}
 
 	return 0;
+}
+
+
+Element* yason_find(Element* root, const int recursive, const char* token)
+{
+	char* up1 = string_to_upper_copy_achar(token);
+
+	int ix = 0;
+	while (ix < root->Children.Count)
+	{
+		Element* ele = root->Children.Items[ix];
+		char* up2 = string_to_upper_copy_achar(&ele->Name.Data);
+
+		if (string_equals_char(up1, up2))
+		{
+			free(up1);
+			free(up2);
+			return ele;
+		}
+
+		if (recursive)
+		{
+			Element* eles = yason_find(ele, recursive, token);
+			if (eles)
+			{
+				free(up1);
+				free(up2);
+				return eles;
+			}
+		}
+
+		free(up2);
+		ix++;
+	}
+	free(up1);
+	return 0;
+}
+
+
+char* yason_find_string(Element* root, const int recursive, const char* token, const char* _default)
+{
+	Element* ele = yason_find(root, recursive, token);
+	if (ele)
+	{
+		if (ele->Value.Length)
+		{
+			return ele->Value.Data;
+		}
+		else
+		{
+			return _default;
+		}
+	}
+	else
+	{
+		return _default;
+	}
+}
+
+int yason_find_int(Element* root, const int recursive, const char* token, int _default)
+{
+	Element* ele = yason_find(root, recursive, token);
+	if (ele)
+	{
+		int error = 0;
+		int value = numeric_parse_int(ele->Value.Data, &error);
+
+		if (error)
+		{
+			return value;
+		}
+		else
+		{
+			return _default;
+		}
+	}
+	else
+	{
+		return _default;
+	}
+}
+
+double yason_find_double(Element* root, const int recursive, const char* token, int _default)
+{
+	Element* ele = yason_find(root, recursive, token);
+	if (ele)
+	{
+		int    error = 0;
+		double value = numeric_parse_double(ele->Value.Data, &error);
+
+		if (error)
+		{
+			return value;
+		}
+		else
+		{
+			return _default;
+		}
+	}
+	else
+	{
+		return _default;
+	}
 }
