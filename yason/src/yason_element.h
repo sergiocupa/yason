@@ -161,9 +161,7 @@ extern "C" {
 	static Element* yason_element_new()
 	{
 		Element* ar = (Element*)malloc(sizeof(Element));
-
 		yason_element_init(ar);
-
 		return ar;
 	}
 

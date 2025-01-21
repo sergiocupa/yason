@@ -111,7 +111,7 @@ Element* yason_parse(const char* content, int length, TreeTypeOption type)
 	case TREE_TYPE_JSON:
 		return json_parse(content, length);
 	case TREE_TYPE_YAML:
-		return yaml_parse(content, length);
+		return yaml_parse(content, length);  
 	case TREE_TYPE_CFG:
 		return cfg_parse(content, length);
 	}
