@@ -84,6 +84,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)yason\submodules\utility\stringlib\include;$(SolutionDir)yason\submodules\utility\listlib\include;$(SolutionDir)yason\submodules\utility\platformlib\include;$(SolutionDir)yason\submodules\utility\filelib\include;$(SolutionDir)yason\submodules\utility\numericlib\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -113,6 +114,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile />
+      <AdditionalIncludeDirectories>$(SolutionDir)yason\submodules\utility\stringlib\include;$(SolutionDir)yason\submodules\utility\listlib\include;$(SolutionDir)yason\submodules\utility\platformlib\include;$(SolutionDir)yason\submodules\utility\filelib\include;$(SolutionDir)yason\submodules\utility\numericlib\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

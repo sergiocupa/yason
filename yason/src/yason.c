@@ -4,9 +4,9 @@
 #include "cfg_parser.h"
 #include "yaml_render.h"
 #include "json_render.h"
-#include "../../../filelib/include/filelib.h"
-#include "../../../numericlib/include/numeric.h"
-#include "../../../stringlib/include/stringlib.h"
+#include "filelib.h"
+#include "numeric.h"
+#include "stringlib.h"
 #include <stdlib.h>
 
 

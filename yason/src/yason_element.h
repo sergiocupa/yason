@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "../../stringlib/include/stringlib.h"
+#include "stringlib.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

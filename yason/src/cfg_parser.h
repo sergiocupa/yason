@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
     #include "yason_element.h"
-    #include "../../../listlib/include/listlib.h"
+    #include "listlib.h"
 
 
     #define CFG_TOKEN      "=[],#"

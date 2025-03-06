@@ -6,8 +6,8 @@ extern "C" {
 #endif
 
 	#include "yason_element.h"
-	#include "../../listlib/include/listlib.h"
-	#include "../../stringlib/include/stringlib.h"
+	#include "listlib.h"
+	#include "stringlib.h"
     #include <string.h>
     #include <stdlib.h>
 

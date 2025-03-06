@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 	#include "yason_element.h"
-    #include "../../stringlib/include/stringlib.h"
+    #include "stringlib.h"
 
 
     #define INDENT_STEP 2

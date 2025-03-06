@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
     #include "../src/yason_element.h"
-    #include "../../platformlib/include/platform.h"
+    #include "platform.h"
 
 
     PLATFORM_API Element* yason_parse(const char* content, int length, TreeTypeOption type);

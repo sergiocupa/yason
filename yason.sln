@@ -7,11 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yason", "yason\yason.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yasontester", "yasontester\yasontester.vcxproj", "{A183C925-72E4-4162-82C8-4B86D207E089}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{8E254D1D-04D3-4638-8EBE-354908DBBDEB}"
-	ProjectSection(SolutionItems) = preProject
-		.gitmodules = .gitmodules
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
