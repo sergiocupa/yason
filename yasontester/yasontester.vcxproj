@@ -19,12 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="tester.c" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\yason\yason.vcxproj">
       <Project>{1adf34c7-64e8-4af8-866d-c9b882bf7ba7}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="tester.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -123,8 +123,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)yason\submodules\utility\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>platformlib.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)yason\submodules\utility\x64\Debug;$(SolutionDir)x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>yason.lib;filelib.lib;stringlib.lib;eventhub.lib;listlib.lib;numericlib.lib;platformlib.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,6 +135,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)yason\submodules\utility\stringlib\include;$(SolutionDir)yason\submodules\utility\listlib\include;$(SolutionDir)yason\submodules\utility\platformlib\include;$(SolutionDir)yason\submodules\utility\filelib\include;$(SolutionDir)yason\submodules\utility\numericlib\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
