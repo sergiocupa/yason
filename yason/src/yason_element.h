@@ -166,6 +166,26 @@ extern "C" {
 	}
 
 
+	Element* yason_find_element(Element* ar, const char* content)
+	{
+		if (ar && content)
+		{
+			int ix = 0;
+			while (ix < ar->Children.Count)
+			{
+				Element* node = ar->Children.Items[ix];
+
+				if (string_equals(&node->Name, content))
+				{
+					return node;
+				}
+				ix++;
+			}
+		}
+		return 0;
+	}
+
+
 
 
 #ifdef __cplusplus
