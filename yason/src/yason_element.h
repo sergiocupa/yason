@@ -166,7 +166,7 @@ extern "C" {
 	}
 
 
-	Element* yason_find_element(Element* ar, const char* content)
+	static Element* yason_find_element(Element* ar, const char* content)
 	{
 		if (ar && content)
 		{
