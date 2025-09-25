@@ -112,9 +112,9 @@ extern "C" {
 		int last_value = 0;
 
 		int ix = (*index);
-		while (ix < elements->Length)
+		while (ix < elements->Count)
 		{
-			JsonTokenContent* element = (JsonTokenContent*)elements->Data[ix];
+			JsonTokenContent* element = (JsonTokenContent*)elements->Items[ix];
 
 			if (element->Token == '{')
 			{
@@ -127,7 +127,7 @@ extern "C" {
 			else if (element->Token == '"')// array de valor string
 			{
 				ix++;
-				JsonTokenContent* element2 = (JsonTokenContent*)elements->Data[ix];
+				JsonTokenContent* element2 = (JsonTokenContent*)elements->Items[ix];
 
 				if (element2->Token == '"')
 				{
@@ -169,34 +169,34 @@ extern "C" {
 		obj->Type     = NODE_TYPE_OBJECT;
 
 		int ix = (*index);
-		while (ix < elements->Length)
+		while (ix < elements->Count)
 		{
-			JsonTokenContent* element = (JsonTokenContent*)elements->Data[ix];
+			JsonTokenContent* element = (JsonTokenContent*)elements->Items[ix];
 
 			if (element->Token == '"')
 			{
 				ix++;
-				JsonTokenContent* element2 = (JsonTokenContent*)elements->Data[ix];
+				JsonTokenContent* element2 = (JsonTokenContent*)elements->Items[ix];
 
 				if (element2->Token == '"')
 				{
 					ix++;
-					JsonTokenContent* element3 = (JsonTokenContent*)elements->Data[ix];
+					JsonTokenContent* element3 = (JsonTokenContent*)elements->Items[ix];
 
 					if (element3->Token == ':')
 					{
 						ix++;
-						JsonTokenContent* element4 = (JsonTokenContent*)elements->Data[ix];
+						JsonTokenContent* element4 = (JsonTokenContent*)elements->Items[ix];
 
 						if (element4->Token == '"')// valor string
 						{
 							ix++;
-							JsonTokenContent* element5 = (JsonTokenContent*)elements->Data[ix];
+							JsonTokenContent* element5 = (JsonTokenContent*)elements->Items[ix];
 
 							if (element5->Token == '"')
 							{
 								ix++;
-								JsonTokenContent* element6 = (JsonTokenContent*)elements->Data[ix];
+								JsonTokenContent* element6 = (JsonTokenContent*)elements->Items[ix];
 
 								json_create_field(obj, element2, element5, 1);
 
@@ -282,9 +282,9 @@ extern "C" {
 		Element* root = 0;
 
 		int ix = 0;
-		while (ix < elements->Length)
+		while (ix < elements->Count)
 		{
-			JsonTokenContent* element = (JsonTokenContent*)elements->Data[ix];
+			JsonTokenContent* element = (JsonTokenContent*)elements->Items[ix];
 
 			if (element->Token == '{')
 			{

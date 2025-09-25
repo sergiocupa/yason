@@ -116,9 +116,9 @@ extern "C" {
 		root->Type = is_map ? NODE_TYPE_MAP : NODE_TYPE_SEQUENCE;
 
 		int ix = (*index);
-		while (ix < tk->Length)
+		while (ix < tk->Count)
 		{
-			ContentPartYaml* item = (ContentPartYaml*)tk->Data[ix];
+			ContentPartYaml* item = (ContentPartYaml*)tk->Items[ix];
 
 			if (item->Token == '[' || item->Token == '{' || item->Token == '(')
 			{
@@ -130,9 +130,9 @@ extern "C" {
 			else if (item->Token == '"')
 			{
 				ix++;
-				if (ix >= tk->Length) break;
+				if (ix >= tk->Count) break;
 
-				ContentPartYaml* item2 = (ContentPartYaml*)tk->Data[ix];
+				ContentPartYaml* item2 = (ContentPartYaml*)tk->Items[ix];
 
 				if (item2->Token == '"')
 				{
@@ -197,9 +197,9 @@ extern "C" {
 		int   ix = 0;
 		Element* first = yason_element_new();
 
-		while (ix < tk->Length)
+		while (ix < tk->Count)
 		{
-			ContentPartYaml* item = (ContentPartYaml*)tk->Data[ix];
+			ContentPartYaml* item = (ContentPartYaml*)tk->Items[ix];
 
 			if (item->Token == ':')
 			{
@@ -247,9 +247,9 @@ extern "C" {
 			else if (item->Token == '"')
 			{
 				ix++;
-				if (ix >= tk->Length) break;
+				if (ix >= tk->Count) break;
 
-				ContentPartYaml* item2 = (ContentPartYaml*)tk->Data[ix];
+				ContentPartYaml* item2 = (ContentPartYaml*)tk->Items[ix];
 
 				if (item2->Token == '"')
 				{
@@ -288,9 +288,9 @@ extern "C" {
 			else if (item->Token == '#')// Comentario
 			{
 				ix++;
-				if (ix >= tk->Length) break;
+				if (ix >= tk->Count) break;
 
-				ContentPartYaml* item2 = (ContentPartYaml*)tk->Data[ix];
+				ContentPartYaml* item2 = (ContentPartYaml*)tk->Items[ix];
 
 				if ((item2->Token == '\r') || (item2->Token == '\n'))
 				{

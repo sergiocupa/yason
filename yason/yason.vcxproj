@@ -130,7 +130,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)submodules\utility\stringlib\include;$(ProjectDir)submodules\utility\listlib\include;$(ProjectDir)submodules\utility\platformlib\include;$(ProjectDir)submodules\utility\filelib\include;$(ProjectDir)submodules\utility\numericlib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)submodules\utility\stringlib\include;$(ProjectDir)submodules\utility\listlib2\include;$(ProjectDir)submodules\utility\platformlib\include;$(ProjectDir)submodules\utility\filelib\include;$(ProjectDir)submodules\utility\numericlib\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -144,7 +144,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)submodules\utility\x64\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>filelib.lib;stringlib.lib;eventhub.lib;listlib.lib;numericlib.lib;platformlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>filelib.lib;stringlib.lib;eventhub.lib;listlib2.lib;numericlib.lib;platformlib.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
