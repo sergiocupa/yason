@@ -21,8 +21,7 @@ extern "C" {
 #endif
 
 	#include "yason_element.h"
-	#include "listlib.h"
-	#include "stringlib.h"
+	#include "yason_compat.h"
     #include <string.h>
     #include <stdlib.h>
 
@@ -33,36 +32,36 @@ extern "C" {
 	typedef struct JsonTokenContent
 	{
 		char   Token;
-		String Content;
+		StringX Content;
 	}
 	JsonTokenContent;
 
-	static Element* json_parse_object(List* elements, int* index);
+	static Element* json_parse_object(ListX* elements, int* index);
 
 
 	static JsonTokenContent* json_create_token_content(char token, const char* content, int content_length, int position, int count)
 	{
-		JsonTokenContent* ma = (JsonTokenContent*)malloc(sizeof(JsonTokenContent));
+		JsonTokenContent* ma = (JsonTokenContent*)memop_alloc_raw(sizeof(JsonTokenContent));
 		memset(ma, 0, sizeof(JsonTokenContent));
 
 		ma->Token = token;
 
-		string_init_sub(&ma->Content, content, content_length, position, count);
+		yason_string_init_sub(&ma->Content, content, content_length, position, count);
 
 		return ma;
 	}
 
 
-	static List* json_index_tokens(const char* content, const int length)
+	static ListX* json_index_tokens(const char* content, const int length)
 	{
-		List* list = list_create(sizeof(JsonTokenContent));
+		ListX* list = yason_list_create(sizeof(JsonTokenContent));
 
 		int current_position = 0;
 		int ix = 0;
 
 		while (ix < length)
 		{
-			int p = string_index_first(content, length, JSON_TOKEN, JSON_TOKEN_LENG, ix, &current_position);
+			int p = yason_string_index_first(content, length, JSON_TOKEN, JSON_TOKEN_LENG, ix, &current_position);
 
 			if (p >= 0)
 			{
@@ -90,20 +89,20 @@ extern "C" {
 
 		if (name_element)
 		{
-			string_append_sub(&field->Name, name_element->Content.Data, name_element->Content.Length, 0, name_element->Content.Length);
+			yason_string_append_sub(&field->Name, name_element->Content.Content, name_element->Content.Length, 0, name_element->Content.Length);
 			string_trim(&field->Name);
 		}
 
 		if (value_element)
 		{
-			string_append_sub(&field->Value, value_element->Content.Data, value_element->Content.Length, 0, value_element->Content.Length);
+			yason_string_append_sub(&field->Value, value_element->Content.Content, value_element->Content.Length, 0, value_element->Content.Length);
 		}
 		
 		string_trim(&field->Value);
 		yason_element_array_add(&obj->Children, field);
 	}
 
-	static Element* json_parse_array(List* elements, int* index)
+	static Element* json_parse_array(ListX* elements, int* index)
 	{
 		Element* arra  = yason_element_new();
 		arra->TreeType = TREE_TYPE_JSON;
@@ -146,7 +145,7 @@ extern "C" {
 			}
 			else if (element->Token == ']')
 			{
-				if (!last_value && string_with_content(&element->Content))
+				if (!last_value && yason_string_with_content(&element->Content))
 				{
 					json_create_field(arra, 0, element, 0);
 				}
@@ -162,7 +161,7 @@ extern "C" {
 		return arra;
 	}
 
-	static Element* json_parse_object(List* elements, int* index)
+	static Element* json_parse_object(ListX* elements, int* index)
 	{
 		Element* obj  = yason_element_new();
 		obj->TreeType = TREE_TYPE_JSON;
@@ -229,7 +228,7 @@ extern "C" {
 							ix++;
 							Element* ar = json_parse_array(elements, &ix);
 
-							string_append_sub(&ar->Name, element2->Content.Data, element2->Content.Length, 0, element2->Content.Length);
+							yason_string_append_sub(&ar->Name, element2->Content.Content, element2->Content.Length, 0, element2->Content.Length);
 							string_trim(&ar->Name);
 
 							yason_element_array_add(&obj->Children, ar);
@@ -240,7 +239,7 @@ extern "C" {
 							ix++;
 							Element* no = json_parse_object(elements, &ix);
 
-							string_append_sub(&no->Name, element2->Content.Data, element2->Content.Length, 0, element2->Content.Length);
+							yason_string_append_sub(&no->Name, element2->Content.Content, element2->Content.Length, 0, element2->Content.Length);
 							string_trim(&no->Name);
 
 							yason_element_array_add(&obj->Children, no);
@@ -277,7 +276,7 @@ extern "C" {
 	}
 
 
-	static Element* json_parse_elements(List* elements)
+	static Element* json_parse_elements(ListX* elements)
 	{
 		Element* root = 0;
 
@@ -307,7 +306,7 @@ extern "C" {
 
 	Element* json_parse(const char* content, int length)
 	{
-		List*    elements = json_index_tokens(content, length);
+		ListX*    elements = json_index_tokens(content, length);
 		Element* root     = json_parse_elements(elements);
 		return root;
 	}

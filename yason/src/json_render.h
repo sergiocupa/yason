@@ -21,68 +21,68 @@ extern "C" {
 #endif
 
 	#include "yason_element.h"
-    #include "stringlib.h"
+    #include "yason_compat.h"
 
 
     #define INDENT_STEP 2
 
-	static void json_render_object(Element* obj, String* content, int indent, int is_root);
+	static void json_render_object(Element* obj, StringX* content, int indent, int is_root);
 
 
-	void json_indent(String* content, const int indent, const int append_line)
+	void json_indent(StringX* content, const int indent, const int append_line)
 	{
 		if (indent >= 0)
 		{
 			if (append_line)
 			{
-				string_append_char(content, '\n');
+				yason_string_append_char(content, '\n');
 			}
 
 			int ix = 0;
 			while (ix < indent)
 			{
-				string_append_char(content, ' ');
+				yason_string_append_char(content, ' ');
 				ix++;
 			}
 		}
 	}
 
-	static void json_append_value(Element* field, String* content)
+	static void json_append_value(Element* field, StringX* content)
 	{
 		if (field->IsString)
 		{
-			string_append(content, "\"");
-			string_append(content, field->Value.Data);
-			string_append(content, "\"");
+			yason_string_append(content, "\"");
+			yason_string_append(content, field->Value.Content);
+			yason_string_append(content, "\"");
 		}
 		else
 		{
-			string_append(content, field->Value.Data);
+			yason_string_append(content, field->Value.Content);
 		}
 	}
 
-	static void json_append_field(Element* field, String* content)
+	static void json_append_field(Element* field, StringX* content)
 	{
-		string_append(content, "\"");
-		string_append(content, field->Name.Data);
-		string_append(content, "\":");
+		yason_string_append(content, "\"");
+		yason_string_append(content, field->Name.Content);
+		yason_string_append(content, "\":");
 
 		if (field->IsString)
 		{
-			string_append(content, "\"");
+			yason_string_append(content, "\"");
 
-			if (field->Value.Length > 0) string_append(content, field->Value.Data);
+			if (field->Value.Length > 0) yason_string_append(content, field->Value.Content);
 
-			string_append(content, "\"");
+			yason_string_append(content, "\"");
 		}
 		else
 		{
-			if(field->Value.Length > 0) string_append(content, field->Value.Data);
+			if(field->Value.Length > 0) yason_string_append(content, field->Value.Content);
 		}
 	}
 
 
-	static void json_render_array(Element* ary, String* content, int indent)
+	static void json_render_array(Element* ary, StringX* content, int indent)
 	{
 		if (ary->Children.Count > 0)
 		{
@@ -92,7 +92,7 @@ extern "C" {
 				json_indent(content, indent, 1);
 			}
 
-			string_append(content, "[");
+			yason_string_append(content, "[");
 
 			if (indent >= 0)
 			{
@@ -115,7 +115,7 @@ extern "C" {
 					json_append_value(element, content);
 				}
 
-				string_append(content, ",");
+				yason_string_append(content, ",");
 
 				if (indent >= 0) json_indent(content, indent, 1);
 				ix++;
@@ -136,12 +136,12 @@ extern "C" {
 			if (op >= 0) json_indent(content, op, 1);
 
 
-			string_append(content, "]");
+			yason_string_append(content, "]");
 		}
 	}
 
 
-	static void json_render_object(Element* obj, String* content, int indent, int is_root)
+	static void json_render_object(Element* obj, StringX* content, int indent, int is_root)
 	{
 		if (obj->Children.Count > 0)
 		{
@@ -151,7 +151,7 @@ extern "C" {
 				json_indent(content, indent, !is_root);
 			}
 
-			string_append(content, "{");
+			yason_string_append(content, "{");
 
 			if (indent >= 0)
 			{
@@ -176,7 +176,7 @@ extern "C" {
 					json_render_array(field, content, indent);
 				}
 
-				string_append(content, ",");
+				yason_string_append(content, ",");
 
 				if (indent >= 0) json_indent(content, indent, 1);
 
@@ -197,14 +197,14 @@ extern "C" {
 
 			if (op >= 0) json_indent(content, op, 1);
 
-			string_append(content, "}");
+			yason_string_append(content, "}");
 		}
 	}
 
 
-	static String* json_render(Element* root, int indent)
+	static StringX* json_render(Element* root, int indent)
 	{
-		String* content = string_new();
+		StringX* content = yason_string_new();
 
 		indent = indent > 0 ? 0 : -1;
 

@@ -21,13 +21,13 @@ extern "C" {
 #endif
 
     #include "../src/yason_element.h"
-    #include "platform.h"
+    #include "../submodules/xplatbase/Xplatbase/Xplatbase/include/xplatbase.h"
 
 
-    PLATFORM_API Element* yason_parse(const char* content, int length, TreeTypeOption type);
-    PLATFORM_API Element* yason_parse_file(const char* path_file);
-    PLATFORM_API String* yason_render(Element* root, int indent);
-    PLATFORM_API void yason_render_file(Element* root, int indent, const char* path_file);
+    XPLATBASE_API Element* yason_parse(const char* content, int length, TreeTypeOption type);
+    XPLATBASE_API Element* yason_parse_file(const char* path_file);
+    XPLATBASE_API StringX* yason_render(Element* root, int indent);
+    XPLATBASE_API void yason_render_file(Element* root, int indent, const char* path_file);
 
 
 #ifdef __cplusplus

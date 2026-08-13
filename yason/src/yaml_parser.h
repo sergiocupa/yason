@@ -21,8 +21,7 @@ extern "C" {
 #endif
 
     #include "yason_element.h"
-    #include "listlib.h"
-    #include "stringlib.h"
+    #include "yason_compat.h"
    
 
 
@@ -35,14 +34,14 @@ extern "C" {
 		char       Token;
 		int        Level;
 		int        Line;
-		String     Content;
+		StringX     Content;
 	}
 	ContentPartYaml;
 
 
 	static ContentPartYaml* yaml_part_content(char token)
 	{
-		ContentPartYaml* ma = (ContentPartYaml*)malloc(sizeof(ContentPartYaml));
+		ContentPartYaml* ma = (ContentPartYaml*)memop_alloc_raw(sizeof(ContentPartYaml));
 		memset(ma, 0, sizeof(ContentPartYaml));
 		ma->Content.Length = 0;
 		ma->Token = token;
@@ -60,7 +59,7 @@ extern "C" {
 		cnode->Parent = parent;
 		cnode->Line = item->Line;
 
-		string_append_sub(&cnode->Value, item->Content.Data, item->Content.Length, 0, item->Content.Length);
+		yason_string_append_sub(&cnode->Value, item->Content.Content, item->Content.Length, 0, item->Content.Length);
 		string_trim(&cnode->Value);
 		yason_element_array_add(&parent->Children, cnode);
 		return cnode;
@@ -89,7 +88,7 @@ extern "C" {
 
 	static void yaml_append_value(int is_field, ContentPartYaml* item, Element* node, int is_map)
 	{
-		if (is_field && string_with_content(&item->Content))// valor do campo sem delemitador
+		if (is_field && yason_string_with_content(&item->Content))// valor do campo sem delemitador
 		{
 			Element* last = node->Children.Items[node->Children.Count - 1];
 
@@ -97,7 +96,7 @@ extern "C" {
 			{
 				last->Type = NODE_TYPE_SCALAR;
 
-				string_append_sub(&last->Value, item->Content.Data, item->Content.Length, 0, item->Content.Length);
+				yason_string_append_sub(&last->Value, item->Content.Content, item->Content.Length, 0, item->Content.Length);
 				string_trim(&last->Value);
 
 				last->IsMap = is_map;
@@ -110,7 +109,7 @@ extern "C" {
 	}
 
 
-	static Element* yaml_parse_array(List* tk, int* index, int is_map)
+	static Element* yaml_parse_array(ListX* tk, int* index, int is_map)
 	{
 		Element* root = yason_element_new();
 		root->Type = is_map ? NODE_TYPE_MAP : NODE_TYPE_SEQUENCE;
@@ -141,14 +140,14 @@ extern "C" {
 			}
 			else if (item->Token == ',')
 			{
-				if (string_with_content(&item->Content))
+				if (yason_string_with_content(&item->Content))
 				{
 					yaml_create_node_add_value(root, 0, item);
 				}
 			}
 			else if (item->Token == ']' || item->Token == '}' || item->Token == ')')
 			{
-				if (string_with_content(&item->Content))
+				if (yason_string_with_content(&item->Content))
 				{
 					yaml_create_node_add_value(root, 0, item);
 				}
@@ -188,7 +187,7 @@ extern "C" {
 		return root;
 	}
 
-	static String* yaml_parse_tokens(List* tk, Element* root)
+	static StringX* yaml_parse_tokens(ListX* tk, Element* root)
 	{
 		Element* node = root;
 		int   sequence_token = 0;
@@ -212,7 +211,7 @@ extern "C" {
 					anode->IsMap = sequence_token;
 					sequence_token = 0;
 
-					string_append_sub(&anode->Name, item->Content.Data, item->Content.Length, 0, item->Content.Length);
+					yason_string_append_sub(&anode->Name, item->Content.Content, item->Content.Length, 0, item->Content.Length);
 
 					Element* last = 0;
 					if (node->Children.Count > 0) last = node->Children.Items[node->Children.Count - 1];
@@ -258,7 +257,7 @@ extern "C" {
 						Element* last = node->Children.Items[node->Children.Count - 1];
 						last->Type = NODE_TYPE_SCALAR;
 						last->IsString = 1;
-						string_append_sub(&last->Value, item2->Content.Data, item2->Content.Length, 0, item2->Content.Length);
+						yason_string_append_sub(&last->Value, item2->Content.Content, item2->Content.Length, 0, item2->Content.Length);
 						string_trim(&last->Value);
 					}
 					is_field = 0;
@@ -282,7 +281,7 @@ extern "C" {
 				xnode->InLine = enode->InLine;
 
 				yason_element_array_transfer(&enode->Children, &xnode->Children, 0);
-				free(enode);
+				memop_free_raw(enode);
 				continue;
 			}
 			else if (item->Token == '#')// Comentario
@@ -300,7 +299,7 @@ extern "C" {
 					Element* last = node->Children.Items[node->Children.Count - 1];
 
 					string_init(&last->Comment);
-					string_append_sub(&last->Comment, item2->Content.Data, item2->Content.Length, 0, item2->Content.Length);
+					yason_string_append_sub(&last->Comment, item2->Content.Content, item2->Content.Length, 0, item2->Content.Length);
 				}
 			}
 			else if ((item->Token == '\r') || (item->Token == '\n'))
@@ -317,7 +316,7 @@ extern "C" {
 	}
 
 
-	static Element* yaml_parse_root_tokens(List* tk)
+	static Element* yaml_parse_root_tokens(ListX* tk)
 	{
 		Element* root  = yason_element_new();
 		root->Type     = NODE_TYPE_ROOT;
@@ -329,9 +328,9 @@ extern "C" {
 	}
 
 
-	static List* yaml_split_by_token(const char* content, int lenght)
+	static ListX* yaml_split_by_token(const char* content, int lenght)
 	{
-		List* list = list_create(sizeof(ContentPartYaml));
+		ListX* list = yason_list_create(sizeof(ContentPartYaml));
 		int  current_position = 0;
 		char last = 0;
 		int  pos = 0;
@@ -339,7 +338,7 @@ extern "C" {
 
 		while (pos < lenght)
 		{
-			int p = string_index_first(content, lenght, YAML_TOKEN, YAML_TOKEN_LENG, pos, &current_position);
+			int p = yason_string_index_first(content, lenght, YAML_TOKEN, YAML_TOKEN_LENG, pos, &current_position);
 
 			if (p >= 0)
 			{
@@ -353,15 +352,15 @@ extern "C" {
 					{
 						int max = current_position - pos;
 						int lp = 0;
-						ma->Level = string_token_count(content, lenght, ' ', pos, max, &lp);
+						ma->Level = yason_string_token_count(content, lenght, ' ', pos, max, &lp);
 						int po = ma->Level > 0 ? lp : pos;
 						int cn = prev_content_count - (po - pos);
 
-						string_append_sub(&ma->Content, content, lenght, po, cn);
+						yason_string_append_sub(&ma->Content, content, lenght, po, cn);
 					}
 					else
 					{
-						string_append_sub(&ma->Content, content, lenght, pos, current_position - pos);
+						yason_string_append_sub(&ma->Content, content, lenght, pos, current_position - pos);
 					}
 				}
 
@@ -383,7 +382,7 @@ extern "C" {
 		{
 			ContentPartYaml* ma3 = yaml_part_content(0);
 
-			string_append_sub(&ma3->Content, content, lenght, current_position, last_content_count);
+			yason_string_append_sub(&ma3->Content, content, lenght, current_position, last_content_count);
 			list_add(list, ma3, sizeof(ContentPartYaml));
 		}
 
@@ -394,7 +393,7 @@ extern "C" {
 	static Element* yaml_parse(const char* content, int length)
 	{
 
-		List*    pcontents = yaml_split_by_token(content, length);
+		ListX*    pcontents = yaml_split_by_token(content, length);
 		Element* root      = yaml_parse_root_tokens(pcontents);
 
 		return root;

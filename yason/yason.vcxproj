@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -26,9 +26,11 @@
     <ClInclude Include="src\yason_element.h" />
     <ClInclude Include="src\yaml_parser.h" />
     <ClInclude Include="src\yaml_render.h" />
+    <ClInclude Include="src\yason_compat.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\yason.c" />
+    <ClCompile Include="src\yason_compat.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -90,7 +92,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)\submodules\utility\stringlib\include;$(ProjectDir)\submodules\utility\listlib\include;$(ProjectDir)\submodules\utility\platformlib\include;$(ProjectDir)\submodules\utility\filelib\include;$(ProjectDir)\submodules\utility\numericlib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)submodules\xplatbase\Xplatbase\Xplatbase\include;$(ProjectDir)submodules\xplatbase\Xplatbase\Xplatbase\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -98,8 +100,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(ProjectDir)\submodules\utility\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>filelib.lib;listlib.lib;platformlib.lib;stringlib.lib;numericlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>Xplatbase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -130,7 +131,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)submodules\utility\stringlib\include;$(ProjectDir)submodules\utility\listlib2\include;$(ProjectDir)submodules\utility\platformlib\include;$(ProjectDir)submodules\utility\filelib\include;$(ProjectDir)submodules\utility\numericlib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)submodules\xplatbase\Xplatbase\Xplatbase\include;$(ProjectDir)submodules\xplatbase\Xplatbase\Xplatbase\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -139,12 +140,9 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>filelib.lib;listlib.lib;platformlib.lib;stringlib.lib;numericlib.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)\submodules\utility\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Xplatbase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(ProjectDir)submodules\utility\x64\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>filelib.lib;stringlib.lib;eventhub.lib;listlib2.lib;numericlib.lib;platformlib.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -160,7 +158,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir)submodules\utility\stringlib\include;$(ProjectDir)submodules\utility\listlib\include;$(ProjectDir)submodules\utility\platformlib\include;$(ProjectDir)submodules\utility\filelib\include;$(ProjectDir)submodules\utility\numericlib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)submodules\xplatbase\Xplatbase\Xplatbase\include;$(ProjectDir)submodules\xplatbase\Xplatbase\Xplatbase\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -168,11 +166,15 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>filelib.lib;stringlib.lib;eventhub.lib;listlib.lib;numericlib.lib;platformlib.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)submodules\utility\x64\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Xplatbase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ItemGroup>
+    <ProjectReference Include="submodules\xplatbase\Xplatbase\Xplatbase\Xplatbase.vcxproj">
+      <Project>{f217b4d5-f6bc-4fce-af5e-beef9fe1f3e8}</Project>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

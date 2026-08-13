@@ -19,13 +19,11 @@
 #include "cfg_parser.h"
 #include "yaml_render.h"
 #include "json_render.h"
-#include "filelib.h"
-#include "numeric.h"
-#include "stringlib.h"
+#include "yason_compat.h"
 #include <stdlib.h>
 
 
-static void yaml_render_tree(Element* root, String* content, int level)
+static void yaml_render_tree(Element* root, StringX* content, int level)
 {
 	int ix = 0;
 	while (ix < root->Children.Count)
@@ -35,26 +33,26 @@ static void yaml_render_tree(Element* root, String* content, int level)
 		if (level > 0)
 		{
 			const char* pad = yaml_create_pad(level);
-			string_append(content, pad);
+			yason_string_append(content, pad);
 		}
 
-		string_append(content, ">");
+		yason_string_append(content, ">");
 
 
 		if (n->Name.Length > 0)
 		{
-			string_append(content, n->Name.Data);
-			string_append(content, ":");
+			yason_string_append(content, n->Name.Content);
+			yason_string_append(content, ":");
 		}
 
 		if (n->Value.Length > 0)
 		{
-			if (n->IsString) string_append(content, "\"");
-			string_append(content, n->Value.Data);
-			if (n->IsString) string_append(content, "\"");
+			if (n->IsString) yason_string_append(content, "\"");
+			yason_string_append(content, n->Value.Content);
+			if (n->IsString) yason_string_append(content, "\"");
 		}
 
-		string_append(content, "\n");
+		yason_string_append(content, "\n");
 
 		yaml_render_tree(n, content, level + 2);
 
@@ -67,34 +65,34 @@ static void yaml_render_tree(Element* root, String* content, int level)
 
 static TreeTypeOption yason_get_tree_type(const char* file_name)
 {
-	int stop = string_index_end_char(file_name, '.');
+	int stop = yason_string_index_end_char(file_name, '.');
 
 	if (stop > 0)
 	{
-		char* upper = string_to_upper_copy_achar(file_name);
+		char* upper = yason_string_to_upper_copy(file_name);
 
-		if (string_equals_char_range(upper, "JSON", stop+1, -1))
+		if (yason_string_equals_char_range(upper, "JSON", stop+1, -1))
 		{
-			free(upper);
+			memop_free_raw(upper);
 			return TREE_TYPE_JSON;
 		}
-		else if (string_equals_char_range(upper, "YAML", stop+1, -1))
+		else if (yason_string_equals_char_range(upper, "YAML", stop+1, -1))
 		{
-			free(upper);
+			memop_free_raw(upper);
 			return TREE_TYPE_YAML;
 		}
-		else if (string_equals_char_range(upper, "CFG", stop + 1, -1))
+		else if (yason_string_equals_char_range(upper, "CFG", stop + 1, -1))
 		{
-			free(upper);
+			memop_free_raw(upper);
 			return TREE_TYPE_CFG;
 		}
-		free(upper);
+		memop_free_raw(upper);
 	}
 	return TREE_TYPE_UNKNOWN;
 }
 
 
-String* yason_render(Element* root, int indent)
+StringX* yason_render(Element* root, int indent)
 {
 	if (root->TreeType == TREE_TYPE_JSON)
 	{
@@ -113,9 +111,9 @@ String* yason_render(Element* root, int indent)
 
 void yason_render_file(Element* root, int indent, const char* path_file)
 {
-	String* content = yason_render(root, indent);
+	StringX* content = yason_render(root, indent);
 
-	file_write_text(path_file, content->Data, content->Length);
+	file_write_text(path_file, content->Content, content->Length);
 }
 
 
@@ -155,18 +153,18 @@ Element* yason_parse_file(const char* path_file)
 
 Element* yason_find(Element* root, const int recursive, const char* token)
 {
-	char* up1 = string_to_upper_copy_achar(token);
+	char* up1 = yason_string_to_upper_copy(token);
 
 	int ix = 0;
 	while (ix < root->Children.Count)
 	{
 		Element* ele = root->Children.Items[ix];
-		char* up2 = string_to_upper_copy_achar(&ele->Name.Data);
+		char* up2 = yason_string_to_upper_copy(ele->Name.Content);
 
-		if (string_equals_char(up1, up2))
+		if (yason_string_equals_char(up1, up2))
 		{
-			free(up1);
-			free(up2);
+			memop_free_raw(up1);
+			memop_free_raw(up2);
 			return ele;
 		}
 
@@ -175,16 +173,16 @@ Element* yason_find(Element* root, const int recursive, const char* token)
 			Element* eles = yason_find(ele, recursive, token);
 			if (eles)
 			{
-				free(up1);
-				free(up2);
+				memop_free_raw(up1);
+				memop_free_raw(up2);
 				return eles;
 			}
 		}
 
-		free(up2);
+		memop_free_raw(up2);
 		ix++;
 	}
-	free(up1);
+	memop_free_raw(up1);
 	return 0;
 }
 
@@ -196,7 +194,7 @@ char* yason_find_string(Element* root, const int recursive, const char* token, c
 	{
 		if (ele->Value.Length)
 		{
-			return ele->Value.Data;
+			return ele->Value.Content;
 		}
 		else
 		{
@@ -215,7 +213,7 @@ int yason_find_int(Element* root, const int recursive, const char* token, int _d
 	if (ele)
 	{
 		int error = 0;
-		int value = numeric_parse_int(ele->Value.Data, &error);
+		int value = numeric_parse_int(ele->Value.Content, &error);
 
 		if (error)
 		{
@@ -238,7 +236,7 @@ double yason_find_double(Element* root, const int recursive, const char* token, 
 	if (ele)
 	{
 		int    error = 0;
-		double value = numeric_parse_double(ele->Value.Data, &error);
+		double value = numeric_parse_double(ele->Value.Content, &error);
 
 		if (error)
 		{

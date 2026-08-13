@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -25,6 +25,12 @@
     <ProjectReference Include="..\yason\yason.vcxproj">
       <Project>{1adf34c7-64e8-4af8-866d-c9b882bf7ba7}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="vehicle_yolov4-tiny.cfg">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -84,13 +90,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)yason\submodules\utility\stringlib\include;$(SolutionDir)yason\submodules\utility\listlib\include;$(SolutionDir)yason\submodules\utility\platformlib\include;$(SolutionDir)yason\submodules\utility\filelib\include;$(SolutionDir)yason\submodules\utility\numericlib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)yason\submodules\xplatbase\Xplatbase\Xplatbase\include;$(SolutionDir)yason\submodules\xplatbase\Xplatbase\Xplatbase\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)yason\submodules\utility\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>platformlib.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -107,8 +111,6 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)yason\submodules\utility\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>platformlib.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -118,13 +120,11 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)yason\submodules\utility\stringlib\include;$(SolutionDir)yason\submodules\utility\listlib\include;$(SolutionDir)yason\submodules\utility\platformlib\include;$(SolutionDir)yason\submodules\utility\filelib\include;$(SolutionDir)yason\submodules\utility\numericlib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)yason\submodules\xplatbase\Xplatbase\Xplatbase\include;$(SolutionDir)yason\submodules\xplatbase\Xplatbase\Xplatbase\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)yason\submodules\utility\x64\Debug;$(SolutionDir)x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>yason.lib;filelib.lib;stringlib.lib;eventhub.lib;listlib.lib;numericlib.lib;platformlib.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,15 +135,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)yason\submodules\utility\stringlib\include;$(SolutionDir)yason\submodules\utility\listlib\include;$(SolutionDir)yason\submodules\utility\platformlib\include;$(SolutionDir)yason\submodules\utility\filelib\include;$(SolutionDir)yason\submodules\utility\numericlib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)yason\submodules\xplatbase\Xplatbase\Xplatbase\include;$(SolutionDir)yason\submodules\xplatbase\Xplatbase\Xplatbase\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)yason\submodules\utility\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>platformlib.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

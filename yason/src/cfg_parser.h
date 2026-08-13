@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
     #include "yason_element.h"
-    #include "listlib.h"
+    #include "yason_compat.h"
 
 
     #define CFG_TOKEN      "=[],#"
@@ -33,7 +33,7 @@ extern "C" {
 		char       Token;
 		int        Level;
 		int        Line;
-		String     Content;
+		StringX     Content;
 	}
 	CfgContentPart;
 
@@ -45,29 +45,29 @@ extern "C" {
 	ArrayPosition;
 
 
-	String* cfg_render(Element* root)
+	StringX* cfg_render(Element* root)
 	{
-		String* content = string_new();
+		StringX* content = yason_string_new();
 
 		if (root->Children.Count > 0)
 		{
 			int ix = 0;
 			while (ix < root->Children.Count)
 			{
-				if (ix > 0) string_append(content, "\n");
+				if (ix > 0) yason_string_append(content, "\n");
 
 				Element* element = root->Children.Items[ix];
 
-				string_append(content, "[");
-				string_append(content, element->Name.Data);
-				string_append(content, "]\n");
+				yason_string_append(content, "[");
+				yason_string_append(content, element->Name.Content);
+				yason_string_append(content, "]\n");
 
 				int iz = 0;
 				while(iz < element->Children.Count)
 				{
 					Element* item = element->Children.Items[iz];
-					string_append(content, item->Name.Data);
-					string_append(content, "=");
+					yason_string_append(content, item->Name.Content);
+					yason_string_append(content, "=");
 
 					if (item->Type == NODE_TYPE_ARRAY)
 					{
@@ -77,20 +77,20 @@ extern "C" {
 							while (ic < (item->Children.Count-1))
 							{
 								Element* ia = item->Children.Items[ic];
-								string_append(content, ia->Value.Data);
-								string_append(content, ",");
+								yason_string_append(content, ia->Value.Content);
+								yason_string_append(content, ",");
 								ic++;
 							}
 							Element* ib = item->Children.Items[ic];
-							string_append(content, ib->Value.Data);
+							yason_string_append(content, ib->Value.Content);
 						}
 					}
 					else
 					{
-						string_append(content, item->Value.Data);
+						yason_string_append(content, item->Value.Content);
 					}
 
-					string_append(content, "\n");
+					yason_string_append(content, "\n");
 					iz++;
 				}
 				ix++;
@@ -122,15 +122,15 @@ extern "C" {
 		memset(&pos_array_item, -1, sizeof(ArrayPosition)*4096);
 
 
-		StringArray* lines = string_split_first_char(content, length, "\r\n", 2);
+		YasonStringArray* lines = yason_string_split_first_char(content, length, "\r\n", 2);
 
 		if (lines->Count > 0)
 		{
 			int iz = 0;
 			while (iz < lines->Count)
 			{
-				String* line = lines->Items[iz];
-				string_trim_end_by_first_char(line, "\r\n");
+				StringX* line = lines->Items[iz];
+				yason_string_trim_end_by_first_char(line, "\r\n");
 
 				pos_session_begin = -1;
 				pos_session_end   = -1;
@@ -143,7 +143,7 @@ extern "C" {
 				int ix = 0;
 				while (ix < line->Length)
 				{
-					int p = string_index_first(line->Data, line->Length, CFG_TOKEN, CFG_TOKEN_LENG, ix, &current_position);
+					int p = yason_string_index_first(line->Content, line->Length, CFG_TOKEN, CFG_TOKEN_LENG, ix, &current_position);
 
 					if (p >= 0)
 					{
@@ -197,7 +197,7 @@ extern "C" {
 				{
 					current = yason_element_new();
 					current->Type = NODE_TYPE_ARRAY;
-					string_append_sub(&current->Name, line->Data, line->Length, pos_session_begin + 1, pos_session_end - pos_session_begin - 1);
+					yason_string_append_sub(&current->Name, line->Content, line->Length, pos_session_begin + 1, pos_session_end - pos_session_begin - 1);
 					yason_element_array_add(&root->Children, current);
 				}
 				else if (pos_value_begin_ >= 0 && pos_value_end > pos_value_begin_)
@@ -206,7 +206,7 @@ extern "C" {
 					{
 						Element* item = yason_element_new();
 
-						string_append_sub(&item->Name, line->Data, line->Length, pos_value_begin_, pos_value_end - pos_value_begin_);
+						yason_string_append_sub(&item->Name, line->Content, line->Length, pos_value_begin_, pos_value_end - pos_value_begin_);
 
 						if (pos_array_length > 0)
 						{
@@ -217,7 +217,7 @@ extern "C" {
 								ArrayPosition ap = pos_array_item[iw];
 								Element* ar = yason_element_new();
 								ar->Type = NODE_TYPE_FIELD;
-								string_append_sub(&ar->Value, line->Data, line->Length, ap.Start, ap.Length);
+								yason_string_append_sub(&ar->Value, line->Content, line->Length, ap.Start, ap.Length);
 								yason_element_array_add(&item->Children, ar);
 								iw++;
 							}
@@ -226,7 +226,7 @@ extern "C" {
 						{
 							item->Type = NODE_TYPE_FIELD;
 							int b = pos_comment_begin >= 0 ? pos_comment_begin : line->Length;
-							string_append_sub(&item->Value, line->Data, line->Length, pos_value_end +1, b - pos_value_end -1);
+							yason_string_append_sub(&item->Value, line->Content, line->Length, pos_value_end +1, b - pos_value_end -1);
 						}
 
 						yason_element_array_add(&current->Children, item);

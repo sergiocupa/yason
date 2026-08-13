@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-#include "stringlib.h"
+#include "yason_compat.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,7 +59,7 @@ extern "C" {
 
 	struct _ElementArray
 	{
-		int       MaxCount;
+		int       Max;
 		int       Count;
 		Element** Items;
 	};
@@ -76,9 +76,9 @@ extern "C" {
 		Element*       Parent;
 		TreeTypeOption TreeType;
 		ElementType    Type;
-		String         Name;
-		String         Value;
-		String         Comment;
+		StringX         Name;
+		StringX         Value;
+		StringX         Comment;
 		ElementArray   Children;
 	};
 
@@ -88,16 +88,16 @@ extern "C" {
 	// Criar lista de Nós
 	static void yason_element_array_init(ElementArray* ar)
 	{
-		ar->Items = (Element**)malloc(sizeof(Element*) * YASON_INITIAL_NODE_COUNT);
+		ar->Items = (Element**)memop_alloc_raw(sizeof(Element*) * YASON_INITIAL_NODE_COUNT);
 		ar->Count = 0;
-		ar->MaxCount = YASON_INITIAL_NODE_COUNT;
+		ar->Max = YASON_INITIAL_NODE_COUNT;
 	}
 	static ElementArray* yason_node_array_new()
 	{
-		ElementArray* ar = (ElementArray*)malloc(sizeof(ElementArray));
-		ar->Items = (Element**)malloc(sizeof(Element*) * YASON_INITIAL_NODE_COUNT);
+		ElementArray* ar = (ElementArray*)memop_alloc_raw(sizeof(ElementArray));
+		ar->Items = (Element**)memop_alloc_raw(sizeof(Element*) * YASON_INITIAL_NODE_COUNT);
 		ar->Count = 0;
-		ar->MaxCount = YASON_INITIAL_NODE_COUNT;
+		ar->Max = YASON_INITIAL_NODE_COUNT;
 		return ar;
 	}
 	static void yason_element_array_release(ElementArray** ar, int only_data)
@@ -108,14 +108,14 @@ extern "C" {
 			int ix = 0;
 			while (ix < a->Count)
 			{
-				free(a->Items[ix]);
+				memop_free_raw(a->Items[ix]);
 				ix++;
 			}
-			free(a->Items);
+			memop_free_raw(a->Items);
 
 			if (!only_data)
 			{
-				free((*ar));
+				memop_free_raw((*ar));
 				*ar = 0;
 			}
 		}
@@ -124,11 +124,11 @@ extern "C" {
 	{
 		if (_this)
 		{
-			if (_this->Count >= _this->MaxCount)
+			if (_this->Count >= _this->Max)
 			{
-				_this->MaxCount *= 2;
-				size_t nsz = sizeof(Element*) * _this->MaxCount;
-				Element** items = (Element**)realloc(_this->Items, nsz);
+				_this->Max *= 2;
+				size_t nsz = sizeof(Element*) * _this->Max;
+				Element** items = (Element**)memop_realloc_raw(_this->Items, nsz);
 
 				if (!items) assert(0);
 
@@ -141,11 +141,11 @@ extern "C" {
 	}
 	static void yason_element_array_transfer(ElementArray* source, ElementArray* destination, int deallocate_source)
 	{
-		if (source->Count > destination->MaxCount)
+		if (source->Count > destination->Max)
 		{
-			destination->MaxCount = source->Count;
-			size_t nsz = sizeof(Element*) * destination->MaxCount;
-			Element** items = (Element**)realloc(destination->Items, nsz);
+			destination->Max = source->Count;
+			size_t nsz = sizeof(Element*) * destination->Max;
+			Element** items = (Element**)memop_realloc_raw(destination->Items, nsz);
 
 			if (!items) assert(0);
 
@@ -161,7 +161,7 @@ extern "C" {
 
 		if (deallocate_source)
 		{
-			free(source);
+			memop_free_raw(source);
 		}
 	}
 
@@ -175,7 +175,7 @@ extern "C" {
 	}
 	static Element* yason_element_new()
 	{
-		Element* ar = (Element*)malloc(sizeof(Element));
+		Element* ar = (Element*)memop_alloc_raw(sizeof(Element));
 		yason_element_init(ar);
 		return ar;
 	}
@@ -190,7 +190,7 @@ extern "C" {
 			{
 				Element* node = ar->Children.Items[ix];
 
-				if (string_equals(&node->Name, content))
+				if (yason_string_equals(&node->Name, content))
 				{
 					return node;
 				}

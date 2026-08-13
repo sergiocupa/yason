@@ -21,12 +21,12 @@ extern "C" {
 #endif
 
     #include "yason_element.h"
-    #include "stringlib.h"
+    #include "yason_compat.h"
 
 
 	static const char* yaml_create_pad(int pad)
 	{
-		char* result = (char*)malloc(sizeof(char) * (pad+1));
+		char* result = (char*)memop_alloc_raw(sizeof(char) * (pad+1));
 		int ix = 0;
 		while (ix < pad)
 		{
@@ -38,7 +38,7 @@ extern "C" {
 	}
 
 
-	static void yaml_render_token(Element* root, String* content, int level)
+	static void yaml_render_token(Element* root, StringX* content, int level)
 	{
 		int ix = 0;
 		while (ix < root->Children.Count)
@@ -50,32 +50,32 @@ extern "C" {
 				if (level > 0)
 				{
 					const char* pad = yaml_create_pad(level);
-					string_append(content, pad);
+					yason_string_append(content, pad);
 				}
 
-				string_append(content, n->Name.Data);
-				string_append(content, ":");
+				yason_string_append(content, n->Name.Content);
+				yason_string_append(content, ":");
 			}
 
 			if (n->Type == NODE_TYPE_SCALAR)
 			{
 				if (n->Value.Length > 0)
 				{
-					if (n->IsString) string_append(content, "\"");
-					string_append(content, n->Value.Data);
-					if (n->IsString) string_append(content, "\"");
+					if (n->IsString) yason_string_append(content, "\"");
+					yason_string_append(content, n->Value.Content);
+					if (n->IsString) yason_string_append(content, "\"");
 				}
 
 				if (root->Type == NODE_TYPE_SEQUENCE || root->Type == NODE_TYPE_MAP)
 				{
 					if ((ix + 1) < root->Children.Count)
 					{
-						string_append(content, ",");
+						yason_string_append(content, ",");
 					}
 				}
 				else
 				{
-					string_append(content, "\n");
+					yason_string_append(content, "\n");
 				}
 
 				yaml_render_token(n, content, level + 2);
@@ -87,11 +87,11 @@ extern "C" {
 				char* tk1 = n->Type == NODE_TYPE_SEQUENCE ? "[" : "{";
 				char* tk2 = n->Type == NODE_TYPE_SEQUENCE ? "]" : "}";
 
-				if (n->Name.Length <= 0) string_append(content, tk1);
+				if (n->Name.Length <= 0) yason_string_append(content, tk1);
 
 				yaml_render_token(n, content, al);
 
-				if (n->Name.Length <= 0) string_append(content, tk2);
+				if (n->Name.Length <= 0) yason_string_append(content, tk2);
 
 
 				if ((ix + 1) < root->Children.Count)
@@ -100,11 +100,11 @@ extern "C" {
 					{
 						if (n->Type == root->Type)
 						{
-							string_append(content, ",");
+							yason_string_append(content, ",");
 						}
 						else
 						{
-							string_append(content, "\n");
+							yason_string_append(content, "\n");
 						}
 					}
 				}
@@ -112,7 +112,7 @@ extern "C" {
 				{
 					if (n->Type != root->Type)
 					{
-						string_append(content, "\n");
+						yason_string_append(content, "\n");
 					}
 				}
 			}
@@ -122,9 +122,9 @@ extern "C" {
 	}
 
 
-	static String* yaml_render(Element* root)
+	static StringX* yaml_render(Element* root)
 	{
-		String* content = string_new();
+		StringX* content = yason_string_new();
 		yaml_render_token(root, content, 0);
 		return content;
 	}

@@ -3,4 +3,7 @@
   <ItemGroup>
     <ClCompile Include="tester.c" />
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="vehicle_yolov4-tiny.cfg" />
+  </ItemGroup>
 </Project>
