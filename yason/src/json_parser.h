@@ -25,10 +25,6 @@ extern "C" {
     #include <string.h>
     #include <stdlib.h>
 
-    #define JSON_TOKEN      "\":,{}[]"
-    #define JSON_TOKEN_LENG 7
-
-
 	typedef struct JsonTokenContent
 	{
 		char   Token;
@@ -39,42 +35,175 @@ extern "C" {
 	static Element* json_parse_object(ListX* elements, int* index);
 
 
-	static JsonTokenContent* json_create_token_content(char token, const char* content, int content_length, int position, int count)
+	/* Move o texto acumulado para um token novo e reinicia o acumulador. A posse do
+	 * buffer e transferida (copia da struct), sem realocar. */
+	static void json_push_token(ListX* list, char token, StringX* pending)
 	{
 		JsonTokenContent* ma = (JsonTokenContent*)memop_alloc_raw(sizeof(JsonTokenContent));
 		memset(ma, 0, sizeof(JsonTokenContent));
 
-		ma->Token = token;
+		ma->Token   = token;
+		ma->Content = *pending;
 
-		yason_string_init_sub(&ma->Content, content, content_length, position, count);
+		list_add(list, ma, sizeof(JsonTokenContent));
 
-		return ma;
+		string_init(pending);
 	}
 
 
+	/* Acrescenta um code point como UTF-8 (usado na decodificacao de \uXXXX). */
+	static void json_append_utf8(StringX* dst, unsigned int cp)
+	{
+		if (cp < 0x80)
+		{
+			yason_string_append_char(dst, (char)cp);
+		}
+		else if (cp < 0x800)
+		{
+			yason_string_append_char(dst, (char)(0xC0 | (cp >> 6)));
+			yason_string_append_char(dst, (char)(0x80 | (cp & 0x3F)));
+		}
+		else if (cp < 0x10000)
+		{
+			yason_string_append_char(dst, (char)(0xE0 | (cp >> 12)));
+			yason_string_append_char(dst, (char)(0x80 | ((cp >> 6) & 0x3F)));
+			yason_string_append_char(dst, (char)(0x80 | (cp & 0x3F)));
+		}
+		else
+		{
+			yason_string_append_char(dst, (char)(0xF0 | (cp >> 18)));
+			yason_string_append_char(dst, (char)(0x80 | ((cp >> 12) & 0x3F)));
+			yason_string_append_char(dst, (char)(0x80 | ((cp >> 6) & 0x3F)));
+			yason_string_append_char(dst, (char)(0x80 | (cp & 0x3F)));
+		}
+	}
+
+
+	/* Le 4 digitos hexadecimais a partir de 'pos'. 1 = ok. */
+	static int json_hex4(const char* s, int length, int pos, unsigned int* out)
+	{
+		unsigned int v = 0;
+		int i;
+
+		if (pos + 4 > length) return 0;
+
+		for (i = 0; i < 4; i++)
+		{
+			char c = s[pos + i];
+			v <<= 4;
+			if      (c >= '0' && c <= '9') v |= (unsigned int)(c - '0');
+			else if (c >= 'a' && c <= 'f') v |= (unsigned int)(c - 'a' + 10);
+			else if (c >= 'A' && c <= 'F') v |= (unsigned int)(c - 'A' + 10);
+			else return 0;
+		}
+
+		*out = v;
+		return 1;
+	}
+
+
+	/* Tokenizador CIENTE DE ASPAS.
+	 *
+	 * A versao anterior procurava qualquer um de ":,{}[]" sem saber se estava dentro de
+	 * uma string. Com isso um valor como "2026-09-09T02:00:11Z" gerava tokens ':' no meio,
+	 * quebrava o padrao que json_parse_object espera e o CAMPO INTEIRO desaparecia na
+	 * leitura -- silenciosamente. Aqui os delimitadores so contam FORA de string, e as
+	 * sequencias de escape sao decodificadas para o conteudo real do token.
+	 *
+	 * O formato dos tokens e o mesmo de antes (Content = texto entre o delimitador
+	 * anterior e este; o conteudo de uma string fica no token da aspa que a FECHA),
+	 * entao os parsers de objeto/array continuam valendo sem alteracao. */
 	static ListX* json_index_tokens(const char* content, const int length)
 	{
-		ListX* list = yason_list_create(sizeof(JsonTokenContent));
+		ListX*  list      = yason_list_create(sizeof(JsonTokenContent));
+		int     in_string = 0;
+		int     ix        = 0;
+		StringX pending;
 
-		int current_position = 0;
-		int ix = 0;
+		string_init(&pending);
 
 		while (ix < length)
 		{
-			int p = yason_string_index_first(content, length, JSON_TOKEN, JSON_TOKEN_LENG, ix, &current_position);
+			char c = content[ix];
 
-			if (p >= 0)
+			if (in_string)
 			{
-				int prev_content_count = current_position - ix;
+				if (c == '\\' && ix + 1 < length)
+				{
+					char e = content[ix + 1];
+					ix += 2;
 
-				JsonTokenContent* element = json_create_token_content(JSON_TOKEN[p], content, length, ix, prev_content_count);
+					switch (e)
+					{
+						case '"':  yason_string_append_char(&pending, '"');  break;
+						case '\\': yason_string_append_char(&pending, '\\'); break;
+						case '/':  yason_string_append_char(&pending, '/');  break;
+						case 'b':  yason_string_append_char(&pending, '\b'); break;
+						case 'f':  yason_string_append_char(&pending, '\f'); break;
+						case 'n':  yason_string_append_char(&pending, '\n'); break;
+						case 'r':  yason_string_append_char(&pending, '\r'); break;
+						case 't':  yason_string_append_char(&pending, '\t'); break;
+						case 'u':
+						{
+							unsigned int cp = 0;
+							if (json_hex4(content, length, ix, &cp))
+							{
+								ix += 4;
 
-				list_add(list, element, sizeof(JsonTokenContent));
+								/* par surrogate: \uD800-\uDBFF seguido de \uDC00-\uDFFF */
+								if (cp >= 0xD800 && cp <= 0xDBFF && ix + 6 <= length &&
+									content[ix] == '\\' && content[ix + 1] == 'u')
+								{
+									unsigned int lo = 0;
+									if (json_hex4(content, length, ix + 2, &lo) && lo >= 0xDC00 && lo <= 0xDFFF)
+									{
+										cp = 0x10000 + ((cp - 0xD800) << 10) + (lo - 0xDC00);
+										ix += 6;
+									}
+								}
 
-				ix = current_position + 1;
+								json_append_utf8(&pending, cp);
+							}
+							break;
+						}
+						default: yason_string_append_char(&pending, e); break;
+					}
+					continue;
+				}
+
+				if (c == '"')   /* fecha a string: o conteudo acumulado vai neste token */
+				{
+					json_push_token(list, '"', &pending);
+					in_string = 0;
+					ix++;
+					continue;
+				}
+
+				yason_string_append_char(&pending, c);
+				ix++;
+				continue;
 			}
-			else break;
+
+			if (c == '"')       /* abre a string */
+			{
+				json_push_token(list, '"', &pending);
+				in_string = 1;
+				ix++;
+				continue;
+			}
+
+			if (c == ':' || c == ',' || c == '{' || c == '}' || c == '[' || c == ']')
+			{
+				json_push_token(list, c, &pending);
+				ix++;
+				continue;
+			}
+
+			yason_string_append_char(&pending, c);
+			ix++;
 		}
+
+		string_release(&pending);   /* sobra apos o ultimo delimitador: nao vira token */
 
 		return list;
 	}
@@ -140,7 +269,14 @@ extern "C" {
 			}
 			else if(element->Token == ',')// novo item
 			{
-				json_create_field(arra, 0, element, 0);
+				/* O valor NAO-string de um item fica no Content da propria virgula
+				 * ([1,2,3] -> tokens ',' com "1" e "2"). Depois de um item que JA foi
+				 * criado (string ou objeto), a virgula vem vazia e criava um campo
+				 * fantasma -- ["a","b"] virava ["a",,"b",,]. Mesma guarda do ramo ']'. */
+				if (!last_value && yason_string_with_content(&element->Content))
+				{
+					json_create_field(arra, 0, element, 0);
+				}
 				last_value = 0;
 			}
 			else if (element->Token == ']')
@@ -245,9 +381,14 @@ extern "C" {
 							yason_element_array_add(&obj->Children, no);
 							continue;
 						}
-						else if (element4->Token == '}')// fim de objeto
+						else if (element4->Token == '}')// valor NAO-string no fim do objeto
 						{
-							// TO-TO: implementar campo no fim do objeto
+							/* {"a":1} -- o valor fica no Content do proprio '}'. Antes este
+							 * ramo so fechava o objeto e o campo era DESCARTADO na leitura. */
+							if (yason_string_with_content(&element4->Content))
+							{
+								json_create_field(obj, element2, element4, 0);
+							}
 							ix++;
 							break;
 						}
