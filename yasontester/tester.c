@@ -1,4 +1,5 @@
 #include "../../yason/yason/include/yason.h"
+#include "json_tests.h"
 #include <stdio.h>
 
 static int tree_string_equal(const StringX* left, const StringX* right)
@@ -48,10 +49,15 @@ static int element_equal(const Element* left, const Element* right, const char* 
 int main(int argc, char** argv)
 {
     const char* file = argc > 1 ? argv[1] : "vehicle_yolov4-tiny.cfg";// "E:/git/libs/yason/yasontester/vehicle_yolov4-tiny.cfg";
-    Element* original = yason_parse_file(file);
+    Element* original;
     StringX* rendered;
     Element* restored;
 
+    /* Regressao do caminho JSON (parse/render). Roda primeiro: e o teste que cobre os
+     * defeitos que falhavam em silencio -- campo sumindo da arvore e saida invalida. */
+    if (json_tests_run() != 0) return 10;
+
+    original = yason_parse_file(file);
     if (!original) { printf("FALHA: nao foi possivel analisar '%s'.\n", file); return 1; }
     rendered = yason_render(original, 1);
     if (!rendered || !rendered->Content || rendered->Length == 0)
@@ -65,5 +71,6 @@ int main(int argc, char** argv)
 
     printf("OK: conversao restaurou a estrutura (%d secoes na raiz, %llu bytes renderizados).\n",
         original->Children.Count, (unsigned long long)rendered->Length);
+    printf("\nTUDO OK.\n");
     return 0;
 }

@@ -20,6 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tester.c" />
+    <ClCompile Include="json_tests.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="json_tests.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\yason\yason.vcxproj">

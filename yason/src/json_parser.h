@@ -252,6 +252,17 @@ extern "C" {
 				last_value = 0;
 				continue;
 			}
+			else if (element->Token == '[')// array dentro de array
+			{
+				/* Faltava este ramo: um array aninhado nao era reconhecido e os tokens
+				 * dele vazavam para o laco do array de fora, achatando o resultado
+				 * ([[1,2],[3,4]] virava [1,2]). */
+				ix++;
+				Element* ar = json_parse_array(elements, &ix);
+				yason_element_array_add(&arra->Children, ar);
+				last_value = 0;
+				continue;
+			}
 			else if (element->Token == '"')// array de valor string
 			{
 				ix++;
