@@ -2,6 +2,17 @@
 #include <ctype.h>
 #include <stdio.h>
 
+// fopen_s e da CRT do MSVC. Fora do Windows este arquivo nao compilava (a yason nao
+// linkava no Linux): mesmo contrato -- 0 em sucesso, errno em falha.
+#ifndef _WIN32
+#include <errno.h>
+static int fopen_s(FILE** f, const char* path, const char* mode)
+{
+    *f = fopen(path, mode);
+    return *f ? 0 : errno;
+}
+#endif
+
 static int yason_cstr_length(const char* data) {
     int n = 0;
     if (data) while (data[n]) ++n;
