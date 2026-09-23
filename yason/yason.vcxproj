@@ -172,9 +172,4 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <ItemGroup>
-    <ProjectReference Include="submodules\xplatbase\Xplatbase\Xplatbase\Xplatbase.vcxproj">
-      <Project>{f217b4d5-f6bc-4fce-af5e-beef9fe1f3e8}</Project>
-    </ProjectReference>
-  </ItemGroup>
 </Project>

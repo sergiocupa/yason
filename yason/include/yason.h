@@ -20,14 +20,34 @@
 extern "C" {
 #endif
 
+	// Modo de ligacao DESTA biblioteca. Estatico e o padrao.
+	//   YASON_BUILD_SHARED -> compilando o yason como biblioteca compartilhada
+	//   YASON_USE_SHARED   -> consumindo o yason compartilhado
+	#if defined(_WIN32) || defined(_WIN64)
+	    #if   defined(YASON_BUILD_SHARED)
+	        #define YASON_API __declspec ( dllexport )
+	    #elif defined(YASON_USE_SHARED)
+	        #define YASON_API __declspec ( dllimport )
+	    #else
+	        #define YASON_API
+	    #endif
+	#else
+	    #if defined(YASON_BUILD_SHARED)
+	        #define YASON_API __attribute__ ( ( visibility ( "default" ) ) )
+	    #else
+	        #define YASON_API
+	    #endif
+	#endif
+
+
     #include "../src/yason_element.h"
     #include "../submodules/xplatbase/Xplatbase/Xplatbase/include/xplatbase.h"
 
 
-    XPLATBASE_API Element* yason_parse(const char* content, int length, TreeTypeOption type);
-    XPLATBASE_API Element* yason_parse_file(const char* path_file);
-    XPLATBASE_API StringX* yason_render(Element* root, int indent);
-    XPLATBASE_API void yason_render_file(Element* root, int indent, const char* path_file);
+    YASON_API Element* yason_parse(const char* content, int length, TreeTypeOption type);
+    YASON_API Element* yason_parse_file(const char* path_file);
+    YASON_API StringX* yason_render(Element* root, int indent);
+    YASON_API void yason_render_file(Element* root, int indent, const char* path_file);
 
 
 #ifdef __cplusplus
